@@ -214,6 +214,7 @@ hf_parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArg
 # default_params define what named parameters can be sent to the script
 default_params = { # Add entries here that you want to change or just track the value of
     "model_name_or_path": "ltg/norbert3-base",
+    "trust_remote_code": False,
     "dataset_name": "ltg/norec_tsa",
     "seed": 101,
     "per_device_train_batch_size": 16,
@@ -237,7 +238,7 @@ default_params = { # Add entries here that you want to change or just track the 
     "do_predict": False, # We predict manually at the end anyway
     "text_column_name": "tokens"
 }
-default_params["trust_remote_code"] =  default_params["model_name_or_path"].startswith("ltg/norbert3") # NorBert3 has custom configurations in its hf repo
+
 
 parser=argparse.ArgumentParser(description = "Pass the path to a json file with configuration parameters as positional argument, or pass individual settings as keyword arguments.")
 parser.add_argument("config", nargs="?")
@@ -251,8 +252,9 @@ else:
     args_dict = vars(args)
 
 args_dict.pop("config", None)
-# Since we are flexible with what arguments are defined, we need to convert 
 
+# Always trust remote code from ltg/norbert3
+args_dict["trust_remote_code"] = args_dict["trust_remote_code"] or args_dict["model_name_or_path"].startswith("ltg/norbert3")
 label_col = args_dict["label_column_name"]
 
 def f1(precision, recall):
